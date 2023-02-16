@@ -1,11 +1,12 @@
 from automata.pda.npda import NPDA
+import automata.base.exceptions as ex
 
 # NPDA which matches palindromes consisting of 'a's and 'b's
 # (accepting by final state)
 # q0 reads the first half of the word, q1 the other half, q2 accepts.
 # But we have to guess when to switch.
 
-npda = NPDA(
+nPDA = NPDA(
     states={'q0', 'q1', 'q2'},
     input_symbols={'a', 'b'},
     stack_symbols={'A', 'B', '#'},
@@ -43,20 +44,23 @@ npda = NPDA(
     acceptance_mode='final_state'
 )
 
-npda.read_input("aaaa") # returns {PDAConfiguration('q2', '', PDAStack(('#',)))}
 
-npda.read_input('ab')  # raises RejectionException
-
-npda.read_input_stepwise('aa')
+nPDA.read_input("aaaa") # returns {PDAConfiguration('q2', '', PDAStack(('#',)))}
+try:
+    nPDA.read_input('ab')  # raises RejectionException
+except ex.RejectionException:
+    print("rejected")
+nPDA.read_input_stepwise('aa')
 # yields:
 # {PDAConfiguration('q0', 'aa', PDAStack(('#',)))}
 # {PDAConfiguration('q0', 'a', PDAStack(('#', 'A'))), PDAConfiguration('q2', 'aa', PDAStack(('#',)))}
 # {PDAConfiguration('q0', '', PDAStack(('#', 'A', 'A'))), PDAConfiguration('q1', '', PDAStack(('#',)))}
 # {PDAConfiguration('q2', '', PDAStack(('#',)))}
 
-if npda.accepts_input(my_input_str):
+if nPDA.accepts_input('aabb'):
     print('accepted')
 else:
     print('rejected')
 
-npda.copy()  # returns deep copy of npda
+nPDA.copy()  # returns deep copy of npda
+
